@@ -184,6 +184,7 @@ namespace BPE_Executable
             craftbukkitjar.RunWorkerCompleted += new RunWorkerCompletedEventHandler(craftbukkitjar_runWorkCompleted);
             craftbukkitjar.WorkerSupportsCancellation = true;
             craftbukkitjar.WorkerReportsProgress = true;
+            craftbukkitjar.RunWorkerAsync();
         }
 
         private void StartBPEBackgroundWorker()
@@ -289,7 +290,6 @@ namespace BPE_Executable
         private void bukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             AddValue(30);
-            craftbukkitjar.RunWorkerAsync();
         }
 
         private void craftbukkitjar_doWork(object sender, DoWorkEventArgs e)
