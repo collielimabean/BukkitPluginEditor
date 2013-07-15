@@ -165,7 +165,7 @@ namespace BPE_Executable
         }
 
         /// <summary>
-        /// Starts the downloading/checking jar process.
+        /// Starts the downloading/checking Bukkit/CraftBukkit jar process.
         /// </summary>
         private void StartJarBackgroundWorkers()
         {
@@ -187,6 +187,9 @@ namespace BPE_Executable
             craftbukkitjar.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Starts the download process for the BukkitPluginEditor.jar
+        /// </summary>
         private void StartBPEBackgroundWorker()
         {
             bpejar = new BackgroundWorker();
@@ -197,6 +200,11 @@ namespace BPE_Executable
             bpejar.RunWorkerAsync();
         }
 
+        /// <summary>
+        /// Downloads the XML artifact from Bukkit.org
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bukkitXML_doWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker bw = sender as BackgroundWorker;
@@ -211,6 +219,11 @@ namespace BPE_Executable
             client.DownloadFile(new Uri(BUKKIT_XML_URL), fullPath + "\\Bukkit.xml");
         }
 
+        /// <summary>
+        /// Downloads the XML artifact for CraftBukkit
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void craftbukkitXML_doWork(object sender, DoWorkEventArgs e)
         {
             BackgroundWorker bw = sender as BackgroundWorker;
@@ -226,6 +239,11 @@ namespace BPE_Executable
 
         }
 
+        /// <summary>
+        /// Loads the downloaded XML artifact into memory (Bukkit.xml)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bukkitXML_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
 
@@ -241,6 +259,11 @@ namespace BPE_Executable
 
         }
 
+        /// <summary>
+        /// Loads the downloaded XML artifact into memory (CraftBukkit.xml)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void craftbukkitXML_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
 
@@ -255,6 +278,11 @@ namespace BPE_Executable
             AddValue(5);
         }
 
+        /// <summary>
+        /// Checks the Bukkit API jar (if any), downloads the latest API build, and updates localversions.txt
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bukkitjar_doWork(object sender, DoWorkEventArgs e)
         {
 
@@ -287,11 +315,21 @@ namespace BPE_Executable
             }
         }
 
+        /// <summary>
+        /// Shows progress on the BukkitSplashScreen progress bar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             AddValue(30);
         }
 
+        /// <summary>
+        /// Checks for a downloaded version of CraftBukkit, downloads the latest if required, and updates localversions.txt
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void craftbukkitjar_doWork(object sender, DoWorkEventArgs e)
         {
             
@@ -325,6 +363,9 @@ namespace BPE_Executable
 
         }
 
+        /// <summary>
+        /// Loads the local machine versions of Bukkit and CraftBukkit from the \\Bukkit Plugin Editor directory
+        /// </summary>
         private void LoadMachineVersions()
         {
             if (File.Exists(fullPath + "\\localversions.txt"))
@@ -370,6 +411,9 @@ namespace BPE_Executable
 
         }
 
+        /// <summary>
+        /// Writes to the machine versions file, replacing the old versions with the latest builds as assigned from the downloaded bukkit.xml and craftbukkit.xml.
+        /// </summary>
         private void UpdateMachineVersionsFile()
         {
             File.WriteAllText(fullPath + "\\localversions.txt",
@@ -377,12 +421,22 @@ namespace BPE_Executable
                                  "CraftBukkit," + latestCraftBukkitBuild);
         }
 
+        /// <summary>
+        /// Shows progress on the BukkitSplashScreen progress bar
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void craftbukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             AddValue(30);
             SetText("Checking if BPE is up to date...");
         }
 
+        /// <summary>
+        /// Downloads the Bukkit Plugin Editor jar file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bpejar_doWork(object sender, DoWorkEventArgs e)
         {
             if(!File.Exists(fullPath + "\\BukkitPluginEditor.jar"))
@@ -394,12 +448,21 @@ namespace BPE_Executable
             }
         }
 
+        /// <summary>
+        /// Shows progress on the BukkitSplashScreen's progress bar.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void bpejar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             AddValue(15);
             SetText("Starting...");
         }
 
+        /// <summary>
+        /// Allows thread-safe calls to the BukkitSplashScreen and change the descriptor label's text.
+        /// </summary>
+        /// <param name="text"></param>
         private void SetText(string text)
         {
 
@@ -414,7 +477,11 @@ namespace BPE_Executable
                 screen.ProgressBarDescriptor.Text = text;
             }
         }
-
+        
+        /// <summary>
+        /// Thread-safe change to the progress bar's value.
+        /// </summary>
+        /// <param name="value"></param>
         private void AddValue(int value)
         {
             if (screen.ProgessBar.InvokeRequired)
