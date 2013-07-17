@@ -11,16 +11,14 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
-namespace BPE_Executable
+namespace BukkitPluginEditor.Initializer
 {
     public sealed class BPEInitializer
     {
 
         public static readonly string CRAFTBUKKIT_XML_URL = "http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/";
         public static readonly string BUKKIT_XML_URL = "http://dl.bukkit.org/api/1.0/downloads/projects/bukkit/artifacts/";
-        public static readonly string BUKKITURL = "http://dl.bukkit.org/";
-        public static readonly string BPEURL = "http://sourceforge.net/projects/bukkitpe/files/Alpha%20launcher/BukkitPluginEditor.jar/download";
-        public static readonly string BPE_FILE_NAME = "BukkitPluginEditor.jar";
+        public static readonly string BUKKITURL = "http://dl.bukkit.org";
 
         private BukkitSplashScreen screen;
 
@@ -33,6 +31,16 @@ namespace BPE_Executable
             }
         }
 
+        private bool successfulLoad = false;
+
+        public bool Success
+        {
+            get
+            {
+                return successfulLoad;
+            }
+        }
+
         private XDocument bukkit;
         private XDocument craftbukkit;
 
@@ -40,7 +48,6 @@ namespace BPE_Executable
         private BackgroundWorker craftbukkitXML;
         private BackgroundWorker bukkitjar;
         private BackgroundWorker craftbukkitjar;
-        private BackgroundWorker bpejar;
 
         private int latestBukkitBuild;
         private int latestCraftBukkitBuild;
@@ -55,69 +62,53 @@ namespace BPE_Executable
             this.screen = screen;
             screen.Show();
 
-            CreateFileSystem();
-
-            StartXMLBackgroundWorkers();
-
-            while (bukkitXML.IsBusy || craftbukkitXML.IsBusy)
+            if (JavaChecker.JavaInstalled())
             {
-                Application.DoEvents();
-            }
+                CreateFileSystem();
 
-            StartJarBackgroundWorkers();
-            
-            while (bukkitjar.IsBusy || craftbukkitjar.IsBusy)
-            {
-                Application.DoEvents();
-            }
+                StartXMLBackgroundWorkers();
 
-            StartBPEBackgroundWorker();
+                while (bukkitXML.IsBusy || craftbukkitXML.IsBusy)
+                {
+                    Application.DoEvents();
+                }
 
-            while (bpejar.IsBusy)
-            {
-                Application.DoEvents();
-            }
+                StartJarBackgroundWorkers();
 
-            StartBukkitEditor();
+                while (bukkitjar.IsBusy || craftbukkitjar.IsBusy)
+                {
+                    Application.DoEvents();
+                }
 
-        }
+                SignalCompletion();
 
-        /// <summary>
-        /// Starts the process for executing the Bukkit Plugin Editor and also exits program on successful handoff to JVM.
-        /// </summary>>
-        private void StartBukkitEditor()
-        {
-            if (BPEJavaChecker.JavaInstalled())
-            {
-
-                //save location
-                string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-
-                string editorPath = "\"" + appData +  "\\Bukkit Plugin Editor\\" + BPE_FILE_NAME + "\"";
-
-                Process javaProcess = new Process();
-
-                //proof of concept
-                ProcessStartInfo startInfo = new ProcessStartInfo();
-                startInfo.FileName = "javaw";
-                startInfo.Arguments = @"-jar " + editorPath;
-
-                javaProcess.StartInfo = startInfo;
-                javaProcess.Start();
-
-                screen.ProgressBarDescriptor.Text = "Starting...";
-                screen.ProgessBar.Value = screen.ProgessBar.Maximum;
-                screen.Close();
+                successfulLoad = true;
 
             }
 
             else
             {
-                //show dialog to install JVM
-                MessageBox.Show("Please install Java SE 6 or higher to use this program.");
+                SetText("A Java SE 6 or higher installation was not found.");
+                screen.ProgessBar.ForeColor = Color.Red;
+
+                MessageBox.Show("Java SE 6 or higher is required to run this program.");
 
             }
+    
+        }
 
+        public void Terminate()
+        {
+            screen.Close();
+        }
+
+        /// <summary>
+        /// Sends message to BukkitSplashScreen that all initial processes have completed.
+        /// </summary>>
+        private void SignalCompletion()
+        {
+            screen.ProgressBarDescriptor.Text = "Starting...";
+            screen.ProgessBar.Value = screen.ProgessBar.Maximum;
         }
 
         /// <summary>
@@ -148,7 +139,7 @@ namespace BPE_Executable
         {
 
             screen.ProgressBarDescriptor.Text = "Getting artifacts...";
-            
+
             bukkitXML = new BackgroundWorker();
             bukkitXML.DoWork += new DoWorkEventHandler(bukkitXML_doWork);
             bukkitXML.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bukkitXML_runWorkCompleted);
@@ -184,20 +175,6 @@ namespace BPE_Executable
             craftbukkitjar.RunWorkerCompleted += new RunWorkerCompletedEventHandler(craftbukkitjar_runWorkCompleted);
             craftbukkitjar.WorkerSupportsCancellation = true;
             craftbukkitjar.WorkerReportsProgress = true;
-            craftbukkitjar.RunWorkerAsync();
-        }
-
-        /// <summary>
-        /// Starts the download process for the BukkitPluginEditor.jar
-        /// </summary>
-        private void StartBPEBackgroundWorker()
-        {
-            bpejar = new BackgroundWorker();
-            bpejar.DoWork += new DoWorkEventHandler(bpejar_doWork);
-            bpejar.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bpejar_runWorkCompleted);
-            bpejar.WorkerSupportsCancellation = true;
-            bpejar.WorkerReportsProgress = true;
-            bpejar.RunWorkerAsync();
         }
 
         /// <summary>
@@ -248,7 +225,7 @@ namespace BPE_Executable
         {
 
             SetText("Checking for latest Bukkit build...");
-            
+
             bukkit = XDocument.Load(fullPath + "\\Bukkit.xml");
 
             var buildlist = bukkit.Descendants("build_number");
@@ -289,7 +266,7 @@ namespace BPE_Executable
             SetText("Checking Bukkit version...");
 
             LoadMachineVersions();
-            
+
             if ((latestBukkitBuild != machineBukkitBuild) || (!File.Exists(fullPath + "\\Libraries\\bukkitlatest.jar")))
             {
 
@@ -309,8 +286,9 @@ namespace BPE_Executable
 
             }
 
-            else if(latestBukkitBuild == machineBukkitBuild)
+            else if (latestBukkitBuild == machineBukkitBuild)
             {
+                craftbukkitjar.RunWorkerAsync();
                 return;
             }
         }
@@ -332,7 +310,7 @@ namespace BPE_Executable
         /// <param name="e"></param>
         private void craftbukkitjar_doWork(object sender, DoWorkEventArgs e)
         {
-            
+
             SetText("Checking CraftBukkit version...");
 
             if ((machineCraftBukkitBuild != latestCraftBukkitBuild) || (!File.Exists(fullPath + "\\Server\\craftbukkitlatest.jar")))
@@ -433,33 +411,6 @@ namespace BPE_Executable
         }
 
         /// <summary>
-        /// Downloads the Bukkit Plugin Editor jar file.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void bpejar_doWork(object sender, DoWorkEventArgs e)
-        {
-            if(!File.Exists(fullPath + "\\BukkitPluginEditor.jar"))
-            {
-                SetText("Downloading Bukkit Plugin Editor...");
-                
-                WebClient client = new WebClient();
-                client.DownloadFile(new Uri(BPEURL), fullPath + "\\BukkitPluginEditor.jar");
-            }
-        }
-
-        /// <summary>
-        /// Shows progress on the BukkitSplashScreen's progress bar.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void bpejar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            AddValue(15);
-            SetText("Starting...");
-        }
-
-        /// <summary>
         /// Allows thread-safe calls to the BukkitSplashScreen and change the descriptor label's text.
         /// </summary>
         /// <param name="text"></param>
@@ -469,6 +420,7 @@ namespace BPE_Executable
             if (screen.ProgressBarDescriptor.InvokeRequired)
             {
                 SetTextCallBack d = new SetTextCallBack(SetText);
+
                 screen.ProgressBarDescriptor.Invoke(d, new object[] { text });
             }
 
@@ -477,7 +429,7 @@ namespace BPE_Executable
                 screen.ProgressBarDescriptor.Text = text;
             }
         }
-        
+
         /// <summary>
         /// Thread-safe change to the progress bar's value.
         /// </summary>
@@ -487,7 +439,9 @@ namespace BPE_Executable
             if (screen.ProgessBar.InvokeRequired)
             {
                 AddValueCallBack d = new AddValueCallBack(AddValue);
-                screen.ProgressBarDescriptor.Invoke(d, new object[] { value });
+
+                screen.ProgessBar.Invoke(d, new object[] { value });
+               
             }
 
             else

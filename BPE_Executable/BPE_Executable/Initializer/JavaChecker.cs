@@ -6,9 +6,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Win32;
 
-namespace BPE_Executable
+namespace BukkitPluginEditor.Initializer
 {
-    public static class BPEJavaChecker
+    public static class JavaChecker
     {
 
         /// <summary>
@@ -55,14 +55,14 @@ namespace BPE_Executable
 
             if (index == -1)
             {
-                throw new Exception("Java installation found, but could not find folder.");
+                throw new Exception("Java installation detected, but folder not found.");
             }
 
             else
             {
-                string version = split[index].Substring(3,3);
+                string version = split[index].Substring(3, 3);
 
-                return (int) ((Double.Parse(version)  % 1) * 10);
+                return (int)((Double.Parse(version) % 1) * 10);
             }
 
 
@@ -94,6 +94,6 @@ namespace BPE_Executable
             }
 
         }
-        
+
     }
 }

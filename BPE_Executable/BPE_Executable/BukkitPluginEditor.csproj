@@ -7,7 +7,7 @@
     <ProjectGuid>{55A8FBCE-1AC8-4170-9920-AF94AF319F76}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BPE_Executable</RootNamespace>
+    <RootNamespace>BukkitPluginEditor</RootNamespace>
     <AssemblyName>BPE_Executable</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -54,7 +54,8 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <StartupObject>BPE_Executable.BukkitPluginExecutable</StartupObject>
+    <StartupObject>
+    </StartupObject>
   </PropertyGroup>
   <PropertyGroup>
     <ManifestCertificateThumbprint>597A29A47D3588327BEA6DE6DF4D4D45C5C0A1F5</ManifestCertificateThumbprint>
@@ -84,12 +85,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BPEInitializer.cs" />
-    <Compile Include="BPEJavaChecker.cs" />
-    <Compile Include="BukkitSplashScreen.cs">
+    <Compile Include="GUI\BPEForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="BukkitPluginExecutable.cs" />
+    <Compile Include="GUI\BPEFormEventHandler.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Initializer\BPEInitializer.cs" />
+    <Compile Include="Initializer\BukkitSplashScreen.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Initializer\JavaChecker.cs" />
+    <Compile Include="InternalServer\Server.cs" />
+    <Compile Include="Main\BPE_Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -117,6 +125,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="bin\Debug\" />
+    <Folder Include="ProjectGeneration\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\BukkitEditorLogo.png" />

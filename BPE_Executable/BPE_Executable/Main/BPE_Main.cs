@@ -1,15 +1,13 @@
-﻿using System;
+﻿using BukkitPluginEditor.Initializer;
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BPE_Executable
+namespace BukkitPluginEditor.Main
 {
-    public class BukkitPluginExecutable
+    public class BPE_Main
     {
 
         /// <summary>
@@ -18,10 +16,17 @@ namespace BPE_Executable
         [STAThread]
         public static void Main()
         {
-
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             BPEInitializer init = new BPEInitializer(new BukkitSplashScreen());
+
+            while (!init.Success)
+            {
+                Application.DoEvents();
+            }
+
+            init.Terminate();
+            Application.Run(new BukkitPluginEditor.GUI.BPEForm());
 
         }
     }

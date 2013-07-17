@@ -7,11 +7,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace BPE_Executable
+namespace BukkitPluginEditor.Initializer
 {
     public class BukkitSplashScreen : Form
     {
-        
+
         public BukkitSplashScreen()
         {
 
@@ -19,11 +19,10 @@ namespace BPE_Executable
             this.FormBorderStyle = FormBorderStyle.None;
             this.Size = new Size(500, 300);
 
-            Bitmap bmp = BPE_Executable.Properties.Resources.BukkitEditorLogo;
-            this.Icon = Icon.FromHandle(bmp.GetHicon());
+            this.Icon = new Icon("BukkitEditorLogo.ico");
 
             this.BackgroundImageLayout = ImageLayout.Center;
-            this.BackgroundImage = BPE_Executable.Properties.Resources.BukkitEditorLogo;
+            this.BackgroundImage = Image.FromFile("BukkitEditorLogo.png");
 
             Label title = InitializeTitle();
             load = InitializeProgressBar();
@@ -32,7 +31,7 @@ namespace BPE_Executable
             this.Controls.Add(title);
             this.Controls.Add(load);
             this.Controls.Add(descriptor);
-           
+
         }
 
 
