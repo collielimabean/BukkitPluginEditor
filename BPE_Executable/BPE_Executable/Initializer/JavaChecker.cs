@@ -8,6 +8,9 @@ using Microsoft.Win32;
 
 namespace BukkitPluginEditor.Initializer
 {
+    /// <summary>
+    /// Verifies the JVM version on the user's system is high enough to run CraftBukkit (currently Java SE 6)
+    /// </summary>
     public static class JavaChecker
     {
 
@@ -36,6 +39,11 @@ namespace BukkitPluginEditor.Initializer
 
         }
 
+        /// <summary>
+        /// Gets the version number of the JRE or JDK installed on the system.
+        /// </summary>
+        /// <param name="installPath">Installation directory of <b>default</b> JRE</param>
+        /// <returns>The major version number of the JRE or JDK, e.g. 6 for JRE6 or JDK1.6.0_xx</returns>
         public static int GetJavaVersionNumber(string installPath)
         {
 
@@ -55,16 +63,22 @@ namespace BukkitPluginEditor.Initializer
 
             if (index == -1)
             {
-                throw new Exception("Java installation detected, but folder not found.");
+                throw new IOException("Java installation detected, but folder not found.");
             }
 
             else
             {
-                string version = split[index].Substring(3, 3);
+                if (split.Contains("jre"))
+                {
+                    return Int32.Parse(split[index].Substring(3));
+                }
 
-                return (int)((Double.Parse(version) % 1) * 10);
+                else
+                {
+                    string version = split[index].Substring(3, 3);
+                    return (int)((Double.Parse(version) % 1) * 10);
+                }
             }
-
 
         }
 

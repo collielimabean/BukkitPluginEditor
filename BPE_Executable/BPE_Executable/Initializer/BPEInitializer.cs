@@ -13,16 +13,33 @@ using System.Xml.Linq;
 
 namespace BukkitPluginEditor.Initializer
 {
-    public sealed class BPEInitializer
+    /// <summary>
+    /// Initializes all resources and files needed to run the main Bukkit Editor program.
+    /// </summary>
+    public sealed class BPEInitializer : IDisposable
     {
-
+        /// <summary>
+        /// Specifies the URL from which to get the CraftBukkit XML artifact.
+        /// </summary>
         public static readonly string CRAFTBUKKIT_XML_URL = "http://dl.bukkit.org/api/1.0/downloads/projects/craftbukkit/artifacts/";
+
+        /// <summary>
+        /// Specifies the URL from which to get the Bukkit XML artifact.
+        /// </summary>
         public static readonly string BUKKIT_XML_URL = "http://dl.bukkit.org/api/1.0/downloads/projects/bukkit/artifacts/";
+
+        /// <summary>
+        /// Specifies the domain of the download site for Bukkit/CraftBukkit files.
+        /// </summary>
         public static readonly string BUKKITURL = "http://dl.bukkit.org";
 
         private BukkitSplashScreen screen;
 
         private string fullPath;
+
+        /// <summary>
+        /// Gets the Folder where all Bukkit Editor Application data is stored.
+        /// </summary>
         public string FolderPath
         {
             get
@@ -33,6 +50,9 @@ namespace BukkitPluginEditor.Initializer
 
         private bool successfulLoad = false;
 
+        /// <summary>
+        /// Gets the status of completion of initialization.
+        /// </summary>
         public bool Success
         {
             get
@@ -57,6 +77,10 @@ namespace BukkitPluginEditor.Initializer
         delegate void SetTextCallBack(string text);
         delegate void AddValueCallBack(int value);
 
+        /// <summary>
+        /// Constructs a BPEInitializer object.
+        /// </summary>
+        /// <param name="screen">A splash screen from which to display progress</param>
         public BPEInitializer(BukkitSplashScreen screen)
         {
             this.screen = screen;
@@ -97,9 +121,16 @@ namespace BukkitPluginEditor.Initializer
     
         }
 
-        public void Terminate()
+        /// <summary>
+        /// Disposes of the BPEInitializer object.
+        /// </summary>
+        public void Dispose()
         {
-            screen.Close();
+            bukkitXML.Dispose();
+            craftbukkitXML.Dispose();
+            bukkitjar.Dispose();
+            craftbukkitjar.Dispose();
+            screen.Dispose();
         }
 
         /// <summary>
@@ -107,7 +138,7 @@ namespace BukkitPluginEditor.Initializer
         /// </summary>>
         private void SignalCompletion()
         {
-            screen.ProgressBarDescriptor.Text = "Starting...";
+            SetText("Starting...");
             screen.ProgessBar.Value = screen.ProgessBar.Maximum;
         }
 
@@ -407,7 +438,6 @@ namespace BukkitPluginEditor.Initializer
         private void craftbukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             AddValue(30);
-            SetText("Checking if BPE is up to date...");
         }
 
         /// <summary>

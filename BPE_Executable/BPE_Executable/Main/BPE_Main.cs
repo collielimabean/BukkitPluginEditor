@@ -7,6 +7,9 @@ using System.Windows.Forms;
 
 namespace BukkitPluginEditor.Main
 {
+    /// <summary>
+    /// Entry class for the application.
+    /// </summary>
     public class BPE_Main
     {
 
@@ -25,7 +28,8 @@ namespace BukkitPluginEditor.Main
                 Application.DoEvents();
             }
 
-            init.Terminate();
+            init.Dispose();
+
             Application.Run(new BukkitPluginEditor.GUI.BPEForm());
 
         }

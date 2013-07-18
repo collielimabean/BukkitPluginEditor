@@ -9,9 +9,16 @@ using System.Windows.Forms;
 
 namespace BukkitPluginEditor.Initializer
 {
+
+    /// <summary>
+    /// Defines a Bukkit splash screen for loading components.
+    /// </summary>
     public class BukkitSplashScreen : Form
     {
 
+        /// <summary>
+        /// Constructs a BukkitSplashScreen.
+        /// </summary>
         public BukkitSplashScreen()
         {
 
@@ -37,6 +44,9 @@ namespace BukkitPluginEditor.Initializer
 
         private ProgressBar load;
 
+        /// <summary>
+        /// Gets or sets the ProgressBar on the Splash Screen.
+        /// </summary>
         public ProgressBar ProgessBar
         {
             get
@@ -93,6 +103,9 @@ namespace BukkitPluginEditor.Initializer
 
         private Label descriptor;
 
+        /// <summary>
+        /// Gets or sets the descriptor label on top of the ProgressBar.
+        /// </summary>
         public Label ProgressBarDescriptor
         {
             get

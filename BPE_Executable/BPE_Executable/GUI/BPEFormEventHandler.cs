@@ -9,6 +9,17 @@ namespace BukkitPluginEditor.GUI
 {
     public partial class BPEForm
     {
+        /// <summary>
+        /// Eventhandler for calling the options menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Options_Click(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem) sender;
+
+        }
+
 
 
     }

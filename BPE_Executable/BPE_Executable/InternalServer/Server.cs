@@ -8,20 +8,37 @@ using System.Threading;
 
 namespace BukkitPluginEditor.InternalServer
 {
+    /// <summary>
+    /// Defines the internal server implementation.
+    /// </summary>
     public sealed class Server 
     {
 
+        /// <summary>
+        /// Location of all CraftBukkit jars.
+        /// </summary>
         public static readonly string ServerJarFolder =
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Bukkit Plugin Editor\\Server\\";
 
+        /// <summary>
+        /// Default CraftBukkit jarfile.
+        /// </summary>
         public static readonly string DefaultCraftBukkit = "craftbukkitlatest.jar";
         
         private string CraftBukkitFileName;
 
+        /// <summary>
+        /// Constructs a default Server object with the Default CraftBukkit file.
+        /// <seealso cref=">F:/Server.DefaultCraftBukkit"/>
+        /// </summary>
         public Server() : this(DefaultCraftBukkit)
         {
         }
 
+        /// <summary>
+        /// Constructs a server with the specified jarfile.
+        /// </summary>
+        /// <param name="fileName"></param>
         public Server(string fileName)
         {
             if (!fileName.EndsWith(".jar"))
@@ -35,6 +52,9 @@ namespace BukkitPluginEditor.InternalServer
             }
         }
 
+        /// <summary>
+        /// Runs the server implementation on a different process.
+        /// </summary>
         public void Run()
         {
             try
