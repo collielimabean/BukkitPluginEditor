@@ -1,8 +1,7 @@
 ﻿using BukkitPluginEditor.Initializer;
+using BukkitPluginEditor.GUI;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.IO;
 using System.Windows.Forms;
 
 namespace BukkitPluginEditor.Main
@@ -19,19 +18,47 @@ namespace BukkitPluginEditor.Main
         [STAThread]
         public static void Main()
         {
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            BPEInitializer init = new BPEInitializer(new BukkitSplashScreen());
 
-            while (!init.Success)
+            string folderpath = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData) + "\\Bukkit Plugin Editor";
+
+            if (IsConnectedToInternet() || (File.Exists(folderpath + "\\Server\\craftbukkitlatest.jar") &&
+                     File.Exists(folderpath + "\\Libraries\\bukkitlatest.jar")))
             {
-                Application.DoEvents();
+                BPEInitializer init = new BPEInitializer(new BukkitSplashScreen());
+                init.Dispose();
+                Application.Run(new BPEForm());
             }
 
-            init.Dispose();
+            else
+            {
+                MessageBox.Show("Unable to retrieve core parts of the application. \nPlease connect to the internet to use this program.", "Error");
+            }
 
-            Application.Run(new BukkitPluginEditor.GUI.BPEForm());
 
+
+        }
+
+        /// <summary>
+        /// Checks for internet connection at startup.
+        /// </summary>
+        /// <returns></returns>
+        public static bool IsConnectedToInternet()
+        {
+            try
+            {
+                using (var client = new System.Net.WebClient())
+                using (var stream = client.OpenRead("http://www.google.com"))
+                {
+                    return true;
+                }
+            }
+            catch
+            {
+                return false;
+            }
         }
     }
 }

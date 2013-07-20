@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Linq;
 
@@ -18,6 +14,8 @@ namespace BukkitPluginEditor.Initializer
     /// </summary>
     public sealed class BPEInitializer : IDisposable
     {
+
+        #region Initializer members
         /// <summary>
         /// Specifies the URL from which to get the CraftBukkit XML artifact.
         /// </summary>
@@ -48,19 +46,6 @@ namespace BukkitPluginEditor.Initializer
             }
         }
 
-        private bool successfulLoad = false;
-
-        /// <summary>
-        /// Gets the status of completion of initialization.
-        /// </summary>
-        public bool Success
-        {
-            get
-            {
-                return successfulLoad;
-            }
-        }
-
         private XDocument bukkit;
         private XDocument craftbukkit;
 
@@ -69,13 +54,15 @@ namespace BukkitPluginEditor.Initializer
         private BackgroundWorker bukkitjar;
         private BackgroundWorker craftbukkitjar;
 
-        private int latestBukkitBuild;
-        private int latestCraftBukkitBuild;
+        private int? latestBukkitBuild;
+        private int? latestCraftBukkitBuild;
         private int machineBukkitBuild;
         private int machineCraftBukkitBuild;
 
         delegate void SetTextCallBack(string text);
         delegate void AddValueCallBack(int value);
+
+        #endregion
 
         /// <summary>
         /// Constructs a BPEInitializer object.
@@ -89,7 +76,6 @@ namespace BukkitPluginEditor.Initializer
             if (JavaChecker.JavaInstalled())
             {
                 CreateFileSystem();
-
                 StartXMLBackgroundWorkers();
 
                 while (bukkitXML.IsBusy || craftbukkitXML.IsBusy)
@@ -105,9 +91,6 @@ namespace BukkitPluginEditor.Initializer
                 }
 
                 SignalCompletion();
-
-                successfulLoad = true;
-
             }
 
             else
@@ -163,6 +146,8 @@ namespace BukkitPluginEditor.Initializer
             screen.ProgessBar.Value += 5;
         }
 
+        #region Backgroundworkers
+
         /// <summary>
         /// Starts the XML checking processes.
         /// </summary>
@@ -196,14 +181,12 @@ namespace BukkitPluginEditor.Initializer
 
             bukkitjar = new BackgroundWorker();
             bukkitjar.DoWork += new DoWorkEventHandler(bukkitjar_doWork);
-            bukkitjar.RunWorkerCompleted += new RunWorkerCompletedEventHandler(bukkitjar_runWorkCompleted);
             bukkitjar.WorkerSupportsCancellation = true;
             bukkitjar.WorkerReportsProgress = true;
             bukkitjar.RunWorkerAsync();
 
             craftbukkitjar = new BackgroundWorker();
             craftbukkitjar.DoWork += new DoWorkEventHandler(craftbukkitjar_doWork);
-            craftbukkitjar.RunWorkerCompleted += new RunWorkerCompletedEventHandler(craftbukkitjar_runWorkCompleted);
             craftbukkitjar.WorkerSupportsCancellation = true;
             craftbukkitjar.WorkerReportsProgress = true;
         }
@@ -224,7 +207,16 @@ namespace BukkitPluginEditor.Initializer
 
             WebClient client = new WebClient();
             client.Headers.Add("accept", "application/xml");
-            client.DownloadFile(new Uri(BUKKIT_XML_URL), fullPath + "\\Bukkit.xml");
+
+            try
+            {
+                client.DownloadFile(new Uri(BUKKIT_XML_URL), fullPath + "\\Bukkit.xml");
+            }
+
+            catch (WebException)
+            {
+                return;
+            }
         }
 
         /// <summary>
@@ -243,7 +235,16 @@ namespace BukkitPluginEditor.Initializer
 
             WebClient client = new WebClient();
             client.Headers.Add("accept", "application/xml");
-            client.DownloadFile(new Uri(CRAFTBUKKIT_XML_URL), fullPath + "\\CraftBukkit.xml");
+
+            try
+            {
+                client.DownloadFile(new Uri(CRAFTBUKKIT_XML_URL), fullPath + "\\CraftBukkit.xml");
+            }
+
+            catch (WebException)
+            {
+                return;
+            }
 
         }
 
@@ -257,7 +258,15 @@ namespace BukkitPluginEditor.Initializer
 
             SetText("Checking for latest Bukkit build...");
 
-            bukkit = XDocument.Load(fullPath + "\\Bukkit.xml");
+            try
+            {
+                bukkit = XDocument.Load(fullPath + "\\Bukkit.xml");
+            }
+
+            catch (FileNotFoundException)
+            {
+                return;
+            }
 
             var buildlist = bukkit.Descendants("build_number");
 
@@ -277,7 +286,15 @@ namespace BukkitPluginEditor.Initializer
 
             SetText("Checking for latest CraftBukkit build...");
 
-            craftbukkit = XDocument.Load(fullPath + "\\CraftBukkit.xml");
+            try
+            {
+                craftbukkit = XDocument.Load(fullPath + "\\CraftBukkit.xml");
+            }
+
+            catch (FileNotFoundException)
+            {
+                return;
+            }
 
             var buildlist = craftbukkit.Descendants("build_number");
 
@@ -298,7 +315,7 @@ namespace BukkitPluginEditor.Initializer
 
             LoadMachineVersions();
 
-            if ((latestBukkitBuild != machineBukkitBuild) || (!File.Exists(fullPath + "\\Libraries\\bukkitlatest.jar")))
+            if (latestBukkitBuild != null && (latestBukkitBuild != machineBukkitBuild) || (!File.Exists(fullPath + "\\Libraries\\bukkitlatest.jar")))
             {
 
                 SetText("Downloading latest Bukkit version...");
@@ -314,7 +331,6 @@ namespace BukkitPluginEditor.Initializer
 
                 WebClient client = new WebClient();
                 client.DownloadFile(new Uri(fullURL), fullPath + "\\Libraries\\bukkitlatest.jar");
-
             }
 
             else if (latestBukkitBuild == machineBukkitBuild)
@@ -322,16 +338,9 @@ namespace BukkitPluginEditor.Initializer
                 craftbukkitjar.RunWorkerAsync();
                 return;
             }
-        }
 
-        /// <summary>
-        /// Shows progress on the BukkitSplashScreen progress bar.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void bukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
             AddValue(30);
+
         }
 
         /// <summary>
@@ -344,7 +353,7 @@ namespace BukkitPluginEditor.Initializer
 
             SetText("Checking CraftBukkit version...");
 
-            if ((machineCraftBukkitBuild != latestCraftBukkitBuild) || (!File.Exists(fullPath + "\\Server\\craftbukkitlatest.jar")))
+            if (latestCraftBukkitBuild != null && (machineCraftBukkitBuild != latestCraftBukkitBuild) || (!File.Exists(fullPath + "\\Server\\craftbukkitlatest.jar")))
             {
 
                 SetText("Downloading latest CraftBukkit version...");
@@ -365,12 +374,16 @@ namespace BukkitPluginEditor.Initializer
                 UpdateMachineVersionsFile();
             }
 
-            else
+            else if (latestCraftBukkitBuild == machineCraftBukkitBuild)
             {
                 return;
             }
 
+            AddValue(30);
+
         }
+
+        #endregion
 
         /// <summary>
         /// Loads the local machine versions of Bukkit and CraftBukkit from the \\Bukkit Plugin Editor directory
@@ -428,17 +441,7 @@ namespace BukkitPluginEditor.Initializer
             File.WriteAllText(fullPath + "\\localversions.txt",
                                  "Bukkit," + latestBukkitBuild + "," +
                                  "CraftBukkit," + latestCraftBukkitBuild);
-        }
-
-        /// <summary>
-        /// Shows progress on the BukkitSplashScreen progress bar
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void craftbukkitjar_runWorkCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-            AddValue(30);
-        }
+        }     
 
         /// <summary>
         /// Allows thread-safe calls to the BukkitSplashScreen and change the descriptor label's text.
@@ -466,18 +469,24 @@ namespace BukkitPluginEditor.Initializer
         /// <param name="value"></param>
         private void AddValue(int value)
         {
-            if (screen.ProgessBar.InvokeRequired)
-            {
-                AddValueCallBack d = new AddValueCallBack(AddValue);
 
-                screen.ProgessBar.Invoke(d, new object[] { value });
-               
+            if (screen.IsHandleCreated)
+            {
+                if (screen.ProgessBar.InvokeRequired)
+                {
+                    AddValueCallBack d = new AddValueCallBack(AddValue);
+
+                    screen.ProgessBar.Invoke(d, new object[] { value });
+
+                }
+
+                else
+                {
+                    screen.ProgessBar.Value += value;
+                }
+
             }
 
-            else
-            {
-                screen.ProgessBar.Value += value;
-            }
 
         }
 

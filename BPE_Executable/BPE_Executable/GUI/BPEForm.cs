@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using FastColoredTextBoxNS;
 
 namespace BukkitPluginEditor.GUI
 {
@@ -16,6 +17,23 @@ namespace BukkitPluginEditor.GUI
         private MenuStrip MainMenu;
         private TreeView explorer;
         private SplitContainer container;
+        private TabControl tabs;
+
+        /// <summary>
+        /// Gets or sets the tab pane for the editor.
+        /// </summary>
+        public TabControl TabEditor
+        {
+            get
+            {
+                return tabs;
+            }
+
+            set
+            {
+                tabs = value;
+            }
+        }
 
         /// <summary>
         /// Gets or sets the Project Explorer in the Bukkit Plugin Editor.
@@ -57,7 +75,7 @@ namespace BukkitPluginEditor.GUI
 
             container = new SplitContainer();
             container.Orientation = Orientation.Horizontal;
-            container.Location = new Point(explorer.Size.Width, MainMenu.Size.Height);
+            container.Location = new Point(explorer.Size.Width + 1, MainMenu.Size.Height + 2); //additions are offsets
             container.Size = new Size(this.Size.Width - explorer.Size.Width, this.Size.Height - MainMenu.Size.Height);
 
             InitializeMenus();
@@ -69,7 +87,11 @@ namespace BukkitPluginEditor.GUI
             this.Controls.Add(container);
             this.MainMenuStrip = MainMenu;
 
+            this.SizeChanged += new EventHandler(Form_Resize);
+
         }
+
+        #region Menustrip initialization
 
         private void InitializeMenus()
         {
@@ -144,8 +166,30 @@ namespace BukkitPluginEditor.GUI
         {
             ToolStripMenuItem edit = new ToolStripMenuItem("Edit");
 
+            ToolStripMenuItem copy = new ToolStripMenuItem("Copy");
+            copy.ShortcutKeys = Keys.Control | Keys.C;
+            copy.Click += new EventHandler(Copy_Clicked);
+
+            ToolStripMenuItem cut = new ToolStripMenuItem("Cut");
+            cut.ShortcutKeys = Keys.Control | Keys.X;
+            cut.Click += new EventHandler(Cut_Clicked);
+
+            ToolStripMenuItem paste = new ToolStripMenuItem("Paste");
+            paste.ShortcutKeys = Keys.Control | Keys.V;
+            paste.Click += new EventHandler(Paste_Clicked);
+
+            ToolStripMenuItem closeTab = new ToolStripMenuItem("Close Tab");
+            closeTab.ShortcutKeys = Keys.Control | Keys.W;
+            closeTab.Click += new EventHandler(OptionCloseTab);
+
             ToolStripMenuItem preferences = new ToolStripMenuItem("Preferences");
 
+            edit.DropDownItems.Add(copy);
+            edit.DropDownItems.Add(cut);
+            edit.DropDownItems.Add(paste);
+            edit.DropDownItems.Add(new ToolStripSeparator());
+            edit.DropDownItems.Add(closeTab);
+            edit.DropDownItems.Add(new ToolStripSeparator());
             edit.DropDownItems.Add(preferences);
 
             MainMenu.Items.Add(edit);
@@ -185,6 +229,8 @@ namespace BukkitPluginEditor.GUI
             MainMenu.Items.Add(help);
         }
 
+        #endregion
+
         private void InitializePackageExplorer()
         {
             TreeNode node = new TreeNode("Workspace");
@@ -202,9 +248,39 @@ namespace BukkitPluginEditor.GUI
             SplitterPanel top = container.Panel1;
             SplitterPanel bottom = container.Panel2;
 
-            top.BackColor = Color.LightBlue;
+            tabs = new TabControl();
+            tabs.Size = top.ClientSize;
+            tabs.MouseDown += new MouseEventHandler(MouseCloseTab);
+
+            FastColoredTextBox box = new FastColoredTextBox();
+            box.Size = top.ClientSize;
+            box.AcceptsTab = true;
+            box.AcceptsReturn = true;
+            box.TextChanged += new EventHandler<TextChangedEventArgs>(FastColorTextBox_TextChanged);
+            
+            TabPage test = new TabPage(appendClosingTabSymbol("Testing..."));
+            test.Controls.Add(box);
+
+            tabs.Controls.Add(test);
+
+            top.Controls.Add(tabs);
             bottom.BackColor = Color.LightCoral;
 
+        }
+
+        private string appendClosingTabSymbol(string original)
+        {
+
+            int spaces = 4;
+
+            for (int i = 0; i < spaces; i++)
+            {
+                original += " ";
+            }
+
+            original += "X";
+
+            return original;
         }
 
     }

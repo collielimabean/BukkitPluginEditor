@@ -3,23 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace BukkitPluginEditor.IO
 {
     /// <summary>
-    /// This class is responsible for loading files to the UI
+    /// This class is responsible for loading files.
     /// </summary>
-    public class Loader
+    public static class Loader
     {
 
-        /// <summary>
-        /// Constructs a Loader object.
-        /// </summary>
-        public Loader()
-        {
-            JavaChecker.GetJavaInstallationPath();
-        }
 
     }
 }
