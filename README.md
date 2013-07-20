@@ -17,13 +17,12 @@ Planned features for v1.0:
 
 -pom.xml generation if user requests
 
--Older Bukkit/CraftBukkit api support
+-Older Bukkit/CraftBukkit API support
 
 
+This program will be available, with its source, under the GPL v3.0 license.
 
-Currently, this project is in the ALPHA stage. As such, the files provided in the download section may not be 100% reliable. If you would like to help, please contact me either through the Wiki or email (collielimabean@gmail.com).
 
 Thank you!
 
-[[members limit=20]]
-[[download_button]]
+
