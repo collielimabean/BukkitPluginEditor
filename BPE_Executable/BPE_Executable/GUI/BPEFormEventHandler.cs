@@ -10,24 +10,39 @@ using FastColoredTextBoxNS;
 
 namespace BukkitPluginEditor.GUI
 {
-    public partial class BPEForm
+    public sealed partial class BPEForm
     {
 
+        #region Form and Child Controls Resizing
+
         /// <summary>
-        /// Determines how to form resizes when user changes size of window.
+        /// Resizes the controls when the parent form is resized.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
         public void Form_Resize(object sender, EventArgs e)
         {
-            Form form = (Form) sender;
+            explorer.Size = new Size((int)(0.2 * this.ClientSize.Width), this.ClientSize.Height);
 
-            explorer.Location = new Point(0, MainMenu.Size.Height);
-            explorer.Size = new Size(explorer.Size.Width, (this.Size.Height - MainMenu.Size.Height));
-            container.Location = new Point(explorer.Size.Width, MainMenu.Size.Height + 2);
-            container.Size = new Size(this.Size.Width - explorer.Size.Width, this.Size.Height - MainMenu.Size.Height);
-
+            container.Location = new Point(explorer.Size.Width, MainMenu.Height);
+            container.Size = new Size((int)(0.8 * this.ClientSize.Width), this.ClientSize.Height);
         }
+
+        /// <summary>
+        /// Resizes the SplitContainer's controls when the SplitContainer is resized.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Container_Resize(object sender, EventArgs e)
+        {
+            SplitterPanel top = container.Panel1;
+            SplitterPanel bottom = container.Panel2;
+
+            top.Size = container.Panel1.ClientSize;
+            bottom.Size = container.ClientSize;
+        }
+
+        #endregion
 
         /// <summary>
         /// Close tab actions when menu item invoked
@@ -36,13 +51,13 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void OptionCloseTab(object sender, EventArgs e)
         {
-            string name = this.tabs.SelectedTab.Name;
+            string name = this.EditorTabs.SelectedTab.Name;
 
-            for (int i = 0; i < tabs.TabPages.Count; i++)
+            for (int i = 0; i < EditorTabs.TabPages.Count; i++)
             {
-                if (tabs.TabPages[i].Name.Equals(name))
+                if (EditorTabs.TabPages[i].Name.Equals(name))
                 {
-                    tabs.TabPages.RemoveAt(i);
+                    EditorTabs.TabPages.RemoveAt(i);
                     break;
                 }
             }
@@ -58,9 +73,9 @@ namespace BukkitPluginEditor.GUI
         public void MouseCloseTab(object sender, MouseEventArgs e)
         {
             //Looping through the controls.
-            for (int i = 0; i < tabs.TabPages.Count; i++)
+            for (int i = 0; i < EditorTabs.TabPages.Count; i++)
             {
-                Rectangle r = tabs.GetTabRect(i);
+                Rectangle r = EditorTabs.GetTabRect(i);
 
                 //Getting the position of the "x" mark.
                 Rectangle closeButton = new Rectangle(r.Right - 15, r.Top + 4, 9, 7);
@@ -69,7 +84,7 @@ namespace BukkitPluginEditor.GUI
                 {
                     if (MessageBox.Show("Close this tab without saving?", "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
-                        tabs.TabPages.RemoveAt(i);
+                        EditorTabs.TabPages.RemoveAt(i);
                         break;
                     }
                 }
@@ -96,7 +111,7 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void Copy_Clicked(object sender, EventArgs e)
         {
-            FastColoredTextBox box = (FastColoredTextBox)tabs.SelectedTab.Controls[0];
+            FastColoredTextBox box = (FastColoredTextBox)EditorTabs.SelectedTab.Controls[0];
             box.Copy();
         }
 
@@ -107,7 +122,7 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void Cut_Clicked(object sender, EventArgs e)
         {
-            FastColoredTextBox box = (FastColoredTextBox) tabs.SelectedTab.Controls[0];
+            FastColoredTextBox box = (FastColoredTextBox) EditorTabs.SelectedTab.Controls[0];
             box.Cut();
         }
 
@@ -118,64 +133,8 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void Paste_Clicked(object sender, EventArgs e)
         {
-            FastColoredTextBox box = (FastColoredTextBox) tabs.SelectedTab.Controls[0];
+            FastColoredTextBox box = (FastColoredTextBox) EditorTabs.SelectedTab.Controls[0];
             box.Paste();
-        }
-
-        #endregion
-
-        #region Editor highlighting and autocomplete
-
-        /// <summary>
-        /// Standard style for keywords in Eclipse. (purple and bolded)
-        /// </summary>
-        public static readonly Style KeywordStyle = new TextStyle(Brushes.Purple, null, FontStyle.Bold);
-
-        /// <summary>
-        /// Standard tyle for single line comments in Eclipse. (green)
-        /// </summary>
-        public static readonly Style SingleLineCommentStyle = new TextStyle(Brushes.Green, null, FontStyle.Regular);
-
-        /// <summary>
-        /// Standard style for multiline comments in Eclipse. (blue)
-        /// </summary>
-        public static readonly Style MultiLineCommentStyle = new TextStyle(Brushes.Blue, null, FontStyle.Regular);
-
-        /// <summary>
-        /// Defines all Java keywords
-        /// </summary>
-        public static readonly string[] JavaKeywords =
-        { 
-            "abstract", "assert", "boolean", "break", "byte", "case",
-            "catch", "char", "class", "const", "continue", "default",
-            "do", "double", "else", "enum", "extends", "final", "finally",
-            "float", "for", "goto", "if", "implements", "import", "instanceof",
-            "int", "interface", "long", "native", "new", "package", "private",
-            "protected", "public", "return", "short", "static", "strictfp", "super",
-            "switch", "synchronized", "this", "throw", "throws", "transient", "try",
-            "void", "violatile", "while", "false", "true", "null"
-        };
-
-        /// <summary>
-        /// Defines the actions of the syntax text box.
-        /// Original author: Pavel Torgashov <see cref=">https://github.com/PavelTorgashov/"/>
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void FastColorTextBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            //set keywords to standard style
-            foreach(string keyword in JavaKeywords)
-            {
-                e.ChangedRange.SetStyle(KeywordStyle, keyword);
-            }
-
-            //set commenting style
-            e.ChangedRange.SetStyle(SingleLineCommentStyle, @"//.*$", RegexOptions.Singleline);
-
-            //code folding settings
-            e.ChangedRange.SetFoldingMarkers("{", "}");
-
         }
 
         #endregion

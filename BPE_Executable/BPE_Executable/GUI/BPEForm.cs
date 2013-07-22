@@ -11,13 +11,14 @@ namespace BukkitPluginEditor.GUI
     /// <summary>
     /// This class lays out the main UI for Bukkit Plugin development.
     /// </summary>
-    public partial class BPEForm : Form
+    public sealed partial class BPEForm : Form
     {
 
         private MenuStrip MainMenu;
         private TreeView explorer;
         private SplitContainer container;
-        private TabControl tabs;
+        private TabControl EditorTabs;
+        private TabControl ConsoleTabs;
 
         /// <summary>
         /// Gets or sets the tab pane for the editor.
@@ -26,12 +27,28 @@ namespace BukkitPluginEditor.GUI
         {
             get
             {
-                return tabs;
+                return EditorTabs;
             }
 
             set
             {
-                tabs = value;
+                EditorTabs = value;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the TabControl for the console.
+        /// </summary>
+        public TabControl TabConsole
+        {
+            get
+            {
+                return ConsoleTabs;
+            }
+
+            set
+            {
+                ConsoleTabs = value;
             }
         }
 
@@ -56,27 +73,25 @@ namespace BukkitPluginEditor.GUI
         /// </summary>
         public BPEForm()
         {
-            this.Text = "Bukkit Plugin Editor";
+
+            //initialize form
+            this.Text = "Bukkit Plugin Editor (Alpha)";
             this.StartPosition = FormStartPosition.WindowsDefaultBounds;
             this.Icon = new Icon("BukkitEditorLogo.ico");
             this.BackColor = Color.LightGray;
-
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+            
+            //dynamically create screen such that is 3/5s of screen width and 4/5s of screen height.
             Screen scrn = Screen.FromControl(this);
             int width = scrn.WorkingArea.Width;
             int height = scrn.WorkingArea.Height;
 
             this.Size = new Size((int) (0.6 * width), (int) (0.8 * height));
-        
+            this.SizeChanged += new EventHandler(Form_Resize);
+
+            //initialize controls here
             MainMenu = new MenuStrip();
-
-            explorer = new TreeView();
-            explorer.Location = new Point(0, MainMenu.Size.Height);
-            explorer.Size = new Size(explorer.Size.Width, (this.Size.Height - MainMenu.Size.Height));
-
-            container = new SplitContainer();
-            container.Orientation = Orientation.Horizontal;
-            container.Location = new Point(explorer.Size.Width + 1, MainMenu.Size.Height + 2); //additions are offsets
-            container.Size = new Size(this.Size.Width - explorer.Size.Width, this.Size.Height - MainMenu.Size.Height);
+            this.MainMenuStrip = MainMenu;
 
             InitializeMenus();
             InitializePackageExplorer();
@@ -85,9 +100,6 @@ namespace BukkitPluginEditor.GUI
             this.Controls.Add(MainMenu);
             this.Controls.Add(explorer);
             this.Controls.Add(container);
-            this.MainMenuStrip = MainMenu;
-
-            this.SizeChanged += new EventHandler(Form_Resize);
 
         }
 
@@ -231,57 +243,66 @@ namespace BukkitPluginEditor.GUI
 
         #endregion
 
+        #region Initialize Controls
+
         private void InitializePackageExplorer()
         {
+            explorer = new TreeView();
+            explorer.Location = new Point(0, MainMenu.Height);
+            explorer.Anchor = AnchorStyles.Top | AnchorStyles.Left;
+            explorer.Size = new Size((int)(0.2 * this.ClientSize.Width), this.ClientSize.Height);
+            explorer.Scrollable = true;
+
             TreeNode node = new TreeNode("Workspace");
             node.Nodes.Add(new TreeNode("Child"));
 
             node.Expand();
 
             explorer.Nodes.Add(node);
-
         }
 
         private void InitializeEditorAndConsole()
         {
 
+            //initialize container
+            container = new SplitContainer();
+            container.Location = new Point(explorer.Size.Width, MainMenu.Height);
+            container.Size = new Size((int)(0.8 * this.ClientSize.Width), this.ClientSize.Height);
+            container.SizeChanged += new EventHandler(Container_Resize);
+            container.Orientation = Orientation.Horizontal;
+
+            //initialize panels
             SplitterPanel top = container.Panel1;
             SplitterPanel bottom = container.Panel2;
 
-            tabs = new TabControl();
-            tabs.Size = top.ClientSize;
-            tabs.MouseDown += new MouseEventHandler(MouseCloseTab);
+            //Editor tab control
+            EditorTabs = new TabControl();
+            EditorTabs.Dock = DockStyle.Fill;
+            EditorTabs.Size = top.ClientSize;
+            EditorTabs.MouseDown += new MouseEventHandler(MouseCloseTab);
 
-            FastColoredTextBox box = new FastColoredTextBox();
-            box.Size = top.ClientSize;
-            box.AcceptsTab = true;
-            box.AcceptsReturn = true;
-            box.TextChanged += new EventHandler<TextChangedEventArgs>(FastColorTextBox_TextChanged);
-            
-            TabPage test = new TabPage(appendClosingTabSymbol("Testing..."));
-            test.Controls.Add(box);
+            BukkitEditorTabPage trollfaic = new BukkitEditorTabPage("testing 2", top);
 
-            tabs.Controls.Add(test);
+            EditorTabs.Controls.Add(trollfaic);
 
-            top.Controls.Add(tabs);
-            bottom.BackColor = Color.LightCoral;
+            //Console tab control
+
+            ConsoleTabs = new TabControl();
+            ConsoleTabs.Dock = DockStyle.Fill;
+            ConsoleTabs.Size = top.ClientSize;
+            ConsoleTabs.MouseDown += new MouseEventHandler(MouseCloseTab);
+
+
+            BukkitTabPage test = new BukkitTabPage("Console");
+
+            ConsoleTabs.Controls.Add(test);
+
+            //Add tabcontrols to containers.
+            top.Controls.Add(EditorTabs);
+            bottom.Controls.Add(ConsoleTabs);
 
         }
 
-        private string appendClosingTabSymbol(string original)
-        {
-
-            int spaces = 4;
-
-            for (int i = 0; i < spaces; i++)
-            {
-                original += " ";
-            }
-
-            original += "X";
-
-            return original;
-        }
-
+        #endregion
     }
 }

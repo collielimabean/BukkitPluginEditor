@@ -111,6 +111,12 @@
     <Compile Include="GUI\BPEFormEventHandler.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="GUI\BukkitEditorTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="GUI\BukkitTabPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="GUI\OptionsWindow.cs">
       <SubType>Form</SubType>
     </Compile>
