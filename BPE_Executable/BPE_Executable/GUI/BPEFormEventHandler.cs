@@ -13,6 +13,17 @@ namespace BukkitPluginEditor.GUI
     public sealed partial class BPEForm
     {
 
+        /// <summary>
+        /// Eventhandler for calling the options menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Options_Click(object sender, ToolStripItemClickedEventArgs e)
+        {
+            ToolStripMenuItem item = (ToolStripMenuItem)sender;
+
+        }
+
         #region Form and Child Controls Resizing
 
         /// <summary>
@@ -39,10 +50,12 @@ namespace BukkitPluginEditor.GUI
             SplitterPanel bottom = container.Panel2;
 
             top.Size = container.Panel1.ClientSize;
-            bottom.Size = container.ClientSize;
+            bottom.Size = container.Panel2.ClientSize;
         }
 
         #endregion
+
+        #region Tab handlers
 
         /// <summary>
         /// Close tab actions when menu item invoked
@@ -51,17 +64,25 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void OptionCloseTab(object sender, EventArgs e)
         {
-            string name = this.EditorTabs.SelectedTab.Name;
-
-            for (int i = 0; i < EditorTabs.TabPages.Count; i++)
+            try
             {
-                if (EditorTabs.TabPages[i].Name.Equals(name))
+                string name = this.EditorTabs.SelectedTab.Name;
+
+                for (int i = 0; i < EditorTabs.TabPages.Count; i++)
                 {
-                    EditorTabs.TabPages.RemoveAt(i);
-                    break;
+                    if (EditorTabs.TabPages[i].Name.Equals(name))
+                    {
+                        EditorTabs.TabPages.RemoveAt(i);
+                        break;
+                    }
                 }
             }
-
+                
+            catch (NullReferenceException)
+            {
+                Console.WriteLine("Selected tab is null, NullReferenceException caught and handled.");
+                return;
+            }
         }
 
         /// <summary>
@@ -72,10 +93,13 @@ namespace BukkitPluginEditor.GUI
         /// <param name="e"></param>
         public void MouseCloseTab(object sender, MouseEventArgs e)
         {
+
+            TabControl ctrl = (TabControl) sender;
+
             //Looping through the controls.
-            for (int i = 0; i < EditorTabs.TabPages.Count; i++)
+            for (int i = 0; i < ctrl.TabPages.Count; i++)
             {
-                Rectangle r = EditorTabs.GetTabRect(i);
+                Rectangle r = ctrl.GetTabRect(i);
 
                 //Getting the position of the "x" mark.
                 Rectangle closeButton = new Rectangle(r.Right - 15, r.Top + 4, 9, 7);
@@ -84,23 +108,18 @@ namespace BukkitPluginEditor.GUI
                 {
                     if (MessageBox.Show("Close this tab without saving?", "Save", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
                     {
-                        EditorTabs.TabPages.RemoveAt(i);
+                        ctrl.TabPages.RemoveAt(i);
                         break;
                     }
                 }
             }
         }
 
-        /// <summary>
-        /// Eventhandler for calling the options menu.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        public void Options_Click(object sender, ToolStripItemClickedEventArgs e)
-        {
-            ToolStripMenuItem item = (ToolStripMenuItem) sender;
+        #endregion
 
-        }
+        #region 'File' menu event handlers
+
+        #endregion
 
         #region 'Edit' menu event handlers
 
@@ -138,6 +157,7 @@ namespace BukkitPluginEditor.GUI
         }
 
         #endregion
+
 
     }
 }

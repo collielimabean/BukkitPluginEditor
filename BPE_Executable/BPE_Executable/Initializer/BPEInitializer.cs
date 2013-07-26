@@ -331,6 +331,8 @@ namespace BukkitPluginEditor.Initializer
 
                 WebClient client = new WebClient();
                 client.DownloadFile(new Uri(fullURL), fullPath + "\\Libraries\\bukkitlatest.jar");
+
+                UpdateMachineVersionsFile();
             }
 
             else if (latestBukkitBuild == machineBukkitBuild)
@@ -413,10 +415,7 @@ namespace BukkitPluginEditor.Initializer
                     machineBukkitBuild = 0;
                     machineCraftBukkitBuild = 0;
 
-                    //rewrite the file
-                    File.WriteAllText(fullPath + "\\localversions.txt",
-                                            "Bukkit," + latestBukkitBuild + "," +
-                                            "CraftBukkit," + latestCraftBukkitBuild);
+                    UpdateMachineVersionsFile();
 
                 }
             }
@@ -425,10 +424,7 @@ namespace BukkitPluginEditor.Initializer
             {
                 machineBukkitBuild = 0;
                 machineCraftBukkitBuild = 0;
-
-                File.WriteAllText(fullPath + "\\localversions.txt",
-                        "Bukkit," + latestBukkitBuild + "," +
-                        "CraftBukkit," + latestCraftBukkitBuild);
+                UpdateMachineVersionsFile();
             }
 
         }

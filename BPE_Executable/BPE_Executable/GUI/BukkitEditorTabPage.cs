@@ -129,7 +129,7 @@ namespace BukkitPluginEditor.GUI
             //set keywords to standard style
             foreach (string keyword in JavaKeywords)
             {
-                e.ChangedRange.SetStyle(KeywordStyle, keyword);
+                e.ChangedRange.SetStyle(KeywordStyle, "^" + keyword);
             }
 
             //set commenting style

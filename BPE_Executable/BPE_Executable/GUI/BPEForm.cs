@@ -14,6 +14,8 @@ namespace BukkitPluginEditor.GUI
     public sealed partial class BPEForm : Form
     {
 
+        #region Members
+
         private MenuStrip MainMenu;
         private TreeView explorer;
         private SplitContainer container;
@@ -68,26 +70,15 @@ namespace BukkitPluginEditor.GUI
             }
         }
 
+        #endregion
+
         /// <summary>
         /// Constructs a new Bukkit Plugin Editor Window.
         /// </summary>
         public BPEForm()
         {
 
-            //initialize form
-            this.Text = "Bukkit Plugin Editor (Alpha)";
-            this.StartPosition = FormStartPosition.WindowsDefaultBounds;
-            this.Icon = new Icon("BukkitEditorLogo.ico");
-            this.BackColor = Color.LightGray;
-            this.FormBorderStyle = FormBorderStyle.Sizable;
-            
-            //dynamically create screen such that is 3/5s of screen width and 4/5s of screen height.
-            Screen scrn = Screen.FromControl(this);
-            int width = scrn.WorkingArea.Width;
-            int height = scrn.WorkingArea.Height;
-
-            this.Size = new Size((int) (0.6 * width), (int) (0.8 * height));
-            this.SizeChanged += new EventHandler(Form_Resize);
+            InitializeForm();
 
             //initialize controls here
             MainMenu = new MenuStrip();
@@ -101,6 +92,24 @@ namespace BukkitPluginEditor.GUI
             this.Controls.Add(explorer);
             this.Controls.Add(container);
 
+        }
+
+        private void InitializeForm()
+        {
+            //initialize form
+            this.Text = "Bukkit Plugin Editor (Alpha)";
+            this.StartPosition = FormStartPosition.WindowsDefaultBounds;
+            this.Icon = new Icon("BukkitEditorLogo.ico");
+            this.BackColor = Color.LightGray;
+            this.FormBorderStyle = FormBorderStyle.Sizable;
+
+            //dynamically create screen such that is 3/5s of screen width and 4/5s of screen height.
+            Screen scrn = Screen.FromControl(this);
+            int width = scrn.WorkingArea.Width;
+            int height = scrn.WorkingArea.Height;
+
+            this.Size = new Size((int)(0.6 * width), (int)(0.8 * height));
+            this.SizeChanged += new EventHandler(Form_Resize);
         }
 
         #region Menustrip initialization
@@ -118,33 +127,11 @@ namespace BukkitPluginEditor.GUI
         {
             ToolStripMenuItem file = new ToolStripMenuItem("File");
 
-            ToolStripMenuItem newFile = new ToolStripMenuItem("New");
+            ToolStripMenuItem newFile = new ToolStripMenuItem("New...");
             newFile.ShortcutKeys = Keys.Control | Keys.N;
-            newFile.DropDownDirection = ToolStripDropDownDirection.Right;
-
-            ToolStripMenuItem[] newfileItems = 
-            {
-                new ToolStripMenuItem("Project/Module"),
-                new ToolStripMenuItem("Class"),
-                new ToolStripMenuItem("Package"),
-                new ToolStripMenuItem("Interface"),
-                new ToolStripMenuItem("File"),
-            };
-
-            //Adjust internal buttons and add them to newFile
-            foreach (ToolStripMenuItem button in newfileItems)
-            {
-                button.Width = 75;
-
-                if (!button.Text.Equals("Project/Module") && !button.Text.Equals("File"))
-                {
-                    button.Enabled = false;
-                }
-
-                newFile.DropDownItems.Add(button);
-            }
-
-            ToolStripMenuItem open = new ToolStripMenuItem("Open");
+            newFile.Click += delegate { NewFileWizard w = new NewFileWizard(); w.ShowDialog(); };
+            
+            ToolStripMenuItem open = new ToolStripMenuItem("Open...");
             open.ShortcutKeys = Keys.Control | Keys.O;
 
             ToolStripMenuItem save = new ToolStripMenuItem("Save");
@@ -254,7 +241,6 @@ namespace BukkitPluginEditor.GUI
             explorer.Scrollable = true;
 
             TreeNode node = new TreeNode("Workspace");
-            node.Nodes.Add(new TreeNode("Child"));
 
             node.Expand();
 
@@ -268,6 +254,7 @@ namespace BukkitPluginEditor.GUI
             container = new SplitContainer();
             container.Location = new Point(explorer.Size.Width, MainMenu.Height);
             container.Size = new Size((int)(0.8 * this.ClientSize.Width), this.ClientSize.Height);
+            container.SplitterDistance = (int) (0.6 * container.Size.Height);
             container.SizeChanged += new EventHandler(Container_Resize);
             container.Orientation = Orientation.Horizontal;
 
@@ -286,16 +273,15 @@ namespace BukkitPluginEditor.GUI
             EditorTabs.Controls.Add(trollfaic);
 
             //Console tab control
-
             ConsoleTabs = new TabControl();
             ConsoleTabs.Dock = DockStyle.Fill;
             ConsoleTabs.Size = top.ClientSize;
-            ConsoleTabs.MouseDown += new MouseEventHandler(MouseCloseTab);
 
+            TabPage errors = new TabPage("Error List");
+            TabPage console = new TabPage("Console");
 
-            BukkitTabPage test = new BukkitTabPage("Console");
-
-            ConsoleTabs.Controls.Add(test);
+            ConsoleTabs.Controls.Add(errors);
+            ConsoleTabs.Controls.Add(console);
 
             //Add tabcontrols to containers.
             top.Controls.Add(EditorTabs);

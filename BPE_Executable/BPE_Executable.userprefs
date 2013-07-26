@@ -3,13 +3,13 @@
   <MonoDevelop.Ide.Workbench ActiveDocument="BPE_Executable\GUI\BPEForm.cs">
     <Files>
       <File FileName="BPE_Executable\Main\BPE_Main.cs" Line="1" Column="1" />
-      <File FileName="BPE_Executable\GUI\BPEForm.cs" Line="37" Column="3" />
+      <File FileName="BPE_Executable\GUI\BPEForm.cs" Line="11" Column="18" />
     </Files>
     <Pads>
       <Pad Id="ProjectPad">
         <State expanded="True">
-          <Node name="BukkitPluginEditor" expanded="True">
-            <Node name="GUI" selected="True" />
+          <Node name="BukkitPluginEditor" expanded="True" selected="True">
+            <Node name="GUI" expanded="True" />
             <Node name="Main" expanded="True" />
           </Node>
         </State>
