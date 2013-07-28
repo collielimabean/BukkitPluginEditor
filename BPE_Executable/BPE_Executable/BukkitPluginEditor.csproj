@@ -99,16 +99,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GUI\AboutBox.cs">
+    <Compile Include="GUI\MainForm\AboutBox.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\AboutBox.Designer.cs">
+    <Compile Include="GUI\MainForm\AboutBox.Designer.cs">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </Compile>
-    <Compile Include="GUI\BPEForm.cs">
+    <Compile Include="GUI\MainForm\BPEForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="GUI\BPEFormEventHandler.cs">
+    <Compile Include="GUI\MainForm\BPEFormEventHandler.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="GUI\BukkitEditorTabPage.cs">
@@ -117,9 +117,13 @@
     <Compile Include="GUI\BukkitTabPage.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="GUI\FileWizardPanels\BukkitPluginProjectPanel.cs" />
-    <Compile Include="GUI\FileWizardPanels\JavaProjectPanel.cs" />
-    <Compile Include="GUI\NewFileWizard.cs">
+    <Compile Include="GUI\FileWizard\BukkitPluginProjectWizard.cs" />
+    <Compile Include="GUI\FileWizard\ClassFileWizard.cs" />
+    <Compile Include="GUI\FileWizard\InterfaceFileWizard.cs" />
+    <Compile Include="GUI\FileWizard\JavaProjectWizard.cs" />
+    <Compile Include="GUI\FileWizard\PackageFileWizard.cs" />
+    <Compile Include="GUI\FileWizard\Wizard.cs" />
+    <Compile Include="GUI\FileWizard\NewFileWizard.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Initializer\BPEInitializer.cs" />
@@ -133,7 +137,7 @@
     <Compile Include="ProjectGenerator\BukkitPluginProjectGenerator.cs" />
     <Compile Include="ProjectGenerator\ProjectGenerator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <EmbeddedResource Include="GUI\AboutBox.resx">
+    <EmbeddedResource Include="GUI\MainForm\AboutBox.resx">
       <DependentUpon>AboutBox.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

@@ -8,6 +8,7 @@ using System.Threading;
 
 namespace BukkitPluginEditor.InternalServer
 {
+
     /// <summary>
     /// Defines the internal server implementation.
     /// </summary>
@@ -29,7 +30,6 @@ namespace BukkitPluginEditor.InternalServer
 
         /// <summary>
         /// Constructs a default Server object with the Default CraftBukkit file.
-        /// <seealso cref=">F:/Server.DefaultCraftBukkit"/>
         /// </summary>
         public Server() : this(DefaultCraftBukkit)
         {
@@ -41,15 +41,26 @@ namespace BukkitPluginEditor.InternalServer
         /// <param name="fileName"></param>
         public Server(string fileName)
         {
-            if (!fileName.EndsWith(".jar"))
+            string[] split = fileName.Split('.');
+
+            if (split.Length <= 1)
             {
-                CraftBukkitFileName = fileName + ".jar";
+                throw new ArgumentException("No extension on jarfile!");
             }
 
             else
             {
-                CraftBukkitFileName = fileName;
+                if(split[1].Equals(".jar"))
+                {
+                    CraftBukkitFileName = fileName;
+                }
+
+                else
+                {
+                    throw new ArgumentException("Incorrect extension!");
+                }
             }
+
         }
 
         /// <summary>
